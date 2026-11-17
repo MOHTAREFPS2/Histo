@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>مركز تحميل المحاضرات والملفات</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-main: #0b1120;
+      --bg-card: #151f32;
+      --bg-card-hover: #1b2840;
+      --bg-soft: #1e293b;
+      --border-color: #2a3954;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-blue-dark: #0284c7;
+      --accent-green: #10b981;
+      --accent-green-dark: #059669;
+      --accent-amber: #f59e0b;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-primary);
+      line-height: 1.65;
+      padding: 16px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding-bottom: 40px;
+    }
+
+    /* تنبيه المتصفحات الداخلية (تيليجرام / انستغرام) */
+    .inapp-warning {
+      display: none;
+      background: rgba(245, 158, 11, 0.14);
+      border: 1.5px solid var(--accent-amber);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      color: #fde68a;
+      font-size: 0.92rem;
+    }
+
+    .inapp-warning strong {
+      display: block;
+      color: #fbbf24;
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+
+    /* الترويسة */
+    header {
+      background: linear-gradient(145deg, #162238, #0f172a);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 22px 20px;
+      text-align: center;
+      margin-bottom: 18px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+    }
+
+    header h1 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    header p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    /* صندوق التعليمات السريعة */
+    .quick-guide {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-right: 4px solid var(--accent-blue);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+      color: #cbd5e1;
+    }
+
+    .quick-guide-title {
+      font-weight: 800;
+      color: var(--accent-blue);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .quick-guide ul {
+      padding-right: 20px;
+    }
+
+    .quick-guide li {
+      margin-bottom: 4px;
+    }
+
+    /* شريط الأدوات العلوي */
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .files-count {
+      font-weight: 700;
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+    }
+
+    .btn-download-all {
+      background: rgba(56, 189, 248, 0.14);
+      color: var(--accent-blue);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-download-all:active {
+      transform: scale(0.98);
+    }
+
+    /* بطاقات الملفات */
+    .files-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .file-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+
+    .file-card:hover {
+      border-color: #3b5278;
+      background-color: var(--bg-card-hover);
+    }
+
+    .file-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .pdf-badge {
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 0.85rem;
+      min-width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+    }
+
+    .file-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .file-title-ar {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 3px;
+    }
+
+    .file-name-en {
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+      direction: ltr;
+      text-align: right;
+      word-break: break-all;
+      margin-bottom: 6px;
+      font-family: monospace, sans-serif;
+    }
+
+    .file-meta {
+      display: inline-block;
+      background-color: var(--bg-soft);
+      color: #cbd5e1;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+    }
+
+    /* شريط التقدم داخل البطاقة */
+    .progress-wrap {
+      display: none;
+      margin-bottom: 12px;
+    }
+
+    .progress-bar-bg {
+      width: 100%;
+      height: 8px;
+      background-color: var(--bg-main);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: 5px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent-blue), var(--accent-green));
+      transition: width 0.2s ease;
+    }
+
+    .progress-text {
+      font-size: 0.8rem;
+      color: var(--accent-blue);
+      font-weight: 700;
+    }
+
+    /* أزرار التحكم */
+    .file-actions {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 10px;
+    }
+
+    .btn {
+      min-height: 46px;
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      padding: 10px 14px;
+      transition: transform 0.15s ease, opacity 0.2s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-blue), var(--accent-blue-dark));
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
+    }
+
+    .btn-secondary {
+      background-color: var(--bg-soft);
+      color: var(--text-primary);
+      border: 1px solid var(--border-color);
+    }
+
+    /* النافذة المنبثقة بعد التحميل */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.82);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 1000;
+      padding: 16px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-box {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 540px;
+      padding: 22px 20px;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+      animation: slideUp 0.25s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-success-header {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .success-circle {
+      width: 54px;
+      height: 54px;
+      border-radius: 50%;
+      background: rgba(16, 185, 129, 0.16);
+      color: var(--accent-green);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      border: 1.5px solid var(--accent-green);
+    }
+
+    .modal-success-header h2 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: var(--accent-green);
+      margin-bottom: 4px;
+    }
+
+    .downloaded-filename {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      direction: ltr;
+      word-break: break-all;
+    }
+
+    .btn-open-now {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent-green), var(--accent-green-dark));
+      color: #ffffff;
+      font-size: 1rem;
+      min-height: 50px;
+      margin-bottom: 16px;
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.3);
+    }
+
+    /* تبويبات شرح مكان الملف (أندرويد / آيفون) */
+    .os-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      background-color: var(--bg-main);
+      padding: 5px;
+      border-radius: var(--radius-md);
+      margin-bottom: 12px;
+    }
+
+    .os-tab {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.88rem;
+      padding: 8px;
+      border-radius: 9px;
+      cursor: pointer;
+    }
+
+    .os-tab.active {
+      background-color: var(--bg-soft);
+      color: var(--text-primary);
+    }
+
+    .location-guide {
+      background-color: var(--bg-main);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      font-size: 0.88rem;
+      color: #e2e8f0;
+      margin-bottom: 14px;
+    }
+
+    .location-guide p {
+      font-weight: 800;
+      color: var(--accent-blue);
+      margin-bottom: 6px;
+    }
+
+    .location-guide ol {
+      padding-right: 20px;
+    }
+
+    .location-guide li {
+      margin-bottom: 5px;
+    }
+
+    .btn-close-modal {
+      width: 100%;
+      background-color: var(--bg-soft);
+      color: var(--text-secondary);
+      min-height: 42px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 28px;
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+    }
+
+    @media (min-width: 600px) {
+      .modal-overlay {
+        align-items: center;
+      }
+    }
+
+    @media (max-width: 420px) {
+      .file-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- تنبيه يظهر تلقائياً إذا فتح المستخدم الرابط داخل تيليجرام أو انستغرام -->
+    <div id="inappWarning" class="inapp-warning">
+      <strong>تنبيه مهم لمستخدمي التطبيقات:</strong>
+      أنت تفتح الصفحة الآن من داخل متصفح تطبيق (مثل تيليجرام أو إنستغرام)، وقد يمنع ذلك حفظ الملفات. اضغط على النقاط الثلاث في الأعلى (⋮ أو ⋯) واختر <b>الفتح في المتصفح (Chrome أو Safari)</b> لضمان التحميل بنجاح.
+    </div>
+
+    <header>
+      <h1>مكتبة تحميل المحاضرات (PDF)</h1>
+      <p>اضغط على زر التحميل لحفظ الملف في هاتفك أو فتحه مباشرة</p>
+    </header>
+
+    <div class="quick-guide">
+      <div class="quick-guide-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <div>طريقة الاستخدام البسيطة:</div>
+      </div>
+      <ul>
+        <li><b>تحميل وحفظ:</b> يحفظ الملف داخل ذاكرة هاتفك لتتمكن من قراءته لاحقاً بدون إنترنت.</li>
+        <li><b>فتح مباشر:</b> يفتح الملف فوراً على شاشتك للقراءة السريعة.</li>
+      </ul>
+    </div>
+
+    <div class="toolbar">
+      <div class="files-count" id="filesCountText">عدد الملفات المتوفرة: 4 ملفات</div>
+      <button type="button" class="btn-download-all" onclick="downloadAllFiles()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="7 10 12 15 17 10"></polyline>
+          <line x1="12" y1="15" x2="12" y2="3"></line>
+        </svg>
+        <div>تحميل الكل دفعة واحدة</div>
+      </button>
+    </div>
+
+    <main id="filesList" class="files-list"></main>
+
+    <footer>
+      متوافق مع جميع هواتف iPhone و Android وأجهزة الكمبيوتر
+    </footer>
+  </div>
+
+  <!-- نافذة ما بعد التحميل: فتح مباشر + أين أجد الملف؟ -->
+  <div id="postDownloadModal" class="modal-overlay" onclick="closeModalOnBackdrop(event)">
+    <div class="modal-box">
+      <div class="modal-success-header">
+        <div class="success-circle">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <h2>تم تجهيز وتحميل الملف بنجاح!</h2>
+        <div id="modalFileName" class="downloaded-filename"></div>
+      </div>
+
+      <a id="directOpenBtn" href="#" target="_blank" rel="noopener" class="btn btn-open-now">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+          <polyline points="15 3 21 3 21 9"></polyline>
+          <line x1="10" y1="14" x2="21" y2="3"></line>
+        </svg>
+        <div>اضغط هنا لفتح الملف مباشرة الآن</div>
+      </a>
+
+      <div class="os-tabs">
+        <button type="button" id="tabAndroid" class="os-tab" onclick="switchGuideTab('android')">أين أجده في الأندرويد؟</button>
+        <button type="button" id="tabIos" class="os-tab" onclick="switchGuideTab('ios')">أين أجده في الآيفون؟</button>
+      </div>
+
+      <div id="guideAndroid" class="location-guide">
+        <p>مكان حفظ الملف في هواتف Android:</p>
+        <ol>
+          <li>اسحب شريط الإشعارات من أعلى الشاشة واضغط على إشعار اكتمال التنزيل لفتحه فوراً.</li>
+          <li>أو افتح تطبيق <b>مدير الملفات (Files / My Files)</b> في هاتفك.</li>
+          <li>ادخل إلى مجلد <b>التنزيلات (Download)</b> وستجد الملف في الأعلى.</li>
+        </ol>
+      </div>
+
+      <div id="guideIos" class="location-guide" style="display: none;">
+        <p>مكان حفظ الملف في هواتف iPhone و iPad:</p>
+        <ol>
+          <li>في متصفح Safari، اضغط على أيقونة السهم الأزرق <b>(↓)</b> بجانب شريط العنوان بالأسفل أو الأعلى.</li>
+          <li>أو اخرج للشاشة الرئيسية وافتح تطبيق <b>الملفات (Files)</b> ذو الأيقونة الزرقاء.</li>
+          <li>اضغط على <b>تصفح (Browse)</b> ثم اختر مجلد <b>التنزيلات (Downloads)</b>.</li>
+        </ol>
+      </div>
+
+      <button type="button" class="btn btn-close-modal" onclick="closeModal()">إغلاق والعودة للقائمة</button>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * ملاحظة هامة للإعداد:
+     * إذا وضعت ملف HTML هذا داخل نفس مستودع GitHub وفعّلت GitHub Pages، اترك الرابط الأساسي "./" كما هو.
+     * أما إذا وضعت صفحة HTML في موقع آخر وتريد جلب الملفات من GitHub، ضع رابط Raw الخاص بمستودعك هكذا:
+     * const GITHUB_BASE_URL = "https://raw.githubusercontent.com/اسم-حسابك/اسم-المستودع/main/";
+     */
+    const GITHUB_BASE_URL = "./";
+
+    // قائمة الملفات المأخوذة من مستودعك
+    const FILES_DATA = [
+      {
+        titleAr: "سلايدات مختبر الأنسجة الضامة (الجزء الثاني)",
+        fileName: "ConnectiveTissues2LabSlidesEN.pdf",
+        size: "2.18 MB"
+      },
+      {
+        titleAr: "سلايدات مختبر الأنسجة الضامة (الجزء الأول)",
+        fileName: "ConnectiveTissuesLabSlidesEN.pdf",
+        size: "3.79 MB"
+      },
+      {
+        titleAr: "سلايدات مختبر الأنسجة الظهارية الغدية (المختبر 3)",
+        fileName: "GlandularEpithelialLab3SlidesEN.pdf",
+        size: "3.42 MB"
+      },
+      {
+        titleAr: "سلايدات مختبر الأنسجة الظهارية (المختبر 2)",
+        fileName: "EpithelialTissueLab2SlidesEN.pdf",
+        size: "5.86 MB"
+      }
+    ];
+
+    // تخزين روابط Blob المؤقتة لفتح الملفات بسرعة بدون إعادة تحميل
+    const cachedBlobUrls = {};
+
+    // فحص نوع المتصفح ونظام التشغيل تلقائياً
+    function detectEnvironment() {
+      const ua = navigator.userAgent || navigator.vendor || window.opera;
+
+      // فحص المتصفحات الداخلية للتطبيقات (تيليجرام، انستغرام، فيسبوك، سناب)
+      const isInApp = /Telegram|FBAN|FBAV|Instagram|Snapchat|Line|Twitter/i.test(ua);
+      if (isInApp) {
+        document.getElementById("inappWarning").style.display = "block";
+      }
+
+      // تحديد تبويب الشرح الافتراضي حسب نوع الهاتف
+      const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+      switchGuideTab(isIOS ? "ios" : "android");
+    }
+
+    // رسم بطاقات الملفات في الصفحة
+    function renderFiles() {
+      const listEl = document.getElementById("filesList");
+      document.getElementById("filesCountText").textContent = "عدد الملفات المتوفرة: " + FILES_DATA.length + " ملفات";
+
+      listEl.innerHTML = FILES_DATA.map((file, index) => {
+        const fullUrl = GITHUB_BASE_URL + encodeURIComponent(file.fileName);
+        return `
+          <article class="file-card" id="card-${index}">
+            <div class="file-header">
+              <div class="pdf-badge">PDF</div>
+              <div class="file-info">
+                <div class="file-title-ar">${file.titleAr}</div>
+                <div class="file-name-en">${file.fileName}</div>
+                <div class="file-meta">الحجم: ${file.size}</div>
+              </div>
+            </div>
+
+            <div class="progress-wrap" id="progress-wrap-${index}">
+              <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="progress-fill-${index}"></div>
+              </div>
+              <div class="progress-text" id="progress-text-${index}">جاري بدء التحميل...</div>
+            </div>
+
+            <div class="file-actions">
+              <button type="button" class="btn btn-primary" id="dl-btn-${index}" onclick="handleDownload(${index})">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <div>تحميل وحفظ بالجهاز</div>
+              </button>
+
+              <a href="${fullUrl}" target="_blank" rel="noopener" class="btn btn-secondary" onclick="prepareDirectOpen(event, ${index})">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <div>فتح مباشر</div>
+              </a>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    // تحميل الملف مع تتبع نسبة التقدم وحفظه + تفعيل الفتح المباشر
+    async function handleDownload(index) {
+      const file = FILES_DATA[index];
+      const fullUrl = GITHUB_BASE_URL + encodeURIComponent(file.fileName);
+
+      const btn = document.getElementById("dl-btn-" + index);
+      const progressWrap = document.getElementById("progress-wrap-" + index);
+      const progressFill = document.getElementById("progress-fill-" + index);
+      const progressText = document.getElementById("progress-text-" + index);
+
+      btn.disabled = true;
+      btn.style.opacity = "0.7";
+      progressWrap.style.display = "block";
+      progressFill.style.width = "15%";
+      progressText.textContent = "جاري الاتصال بالسيرفر وتحميل الملف...";
+
+      try {
+        // إذا كان الملف محملاً مسبقاً في الذاكرة نستخدمه فوراً
+        if (cachedBlobUrls[file.fileName]) {
+          progressFill.style.width = "100%";
+          progressText.textContent = "تم التحميل بنجاح!";
+          triggerAnchorDownload(cachedBlobUrls[file.fileName], file.fileName);
+          showPostDownloadModal(file.fileName, cachedBlobUrls[file.fileName]);
+          resetButton(btn);
+          return;
+        }
+
+        const response = await fetch(fullUrl);
+        if (!response.ok) {
+          throw new Error("تعذر الوصول للملف");
+        }
+
+        const contentLength = response.headers.get("content-length");
+        const total = contentLength ? parseInt(contentLength, 10) : 0;
+        const reader = response.body ? response.body.getReader() : null;
+
+        let blob;
+        if (reader && total) {
+          let received = 0;
+          const chunks = [];
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks.push(value);
+            received += value.length;
+            const percent = Math.min(100, Math.round((received / total) * 100));
+            progressFill.style.width = percent + "%";
+            progressText.textContent = "جاري التحميل: " + percent + "%";
+          }
+          blob = new Blob(chunks, { type: "application/pdf" });
+        } else {
+          progressFill.style.width = "65%";
+          progressText.textContent = "جاري تنزيل البيانات...";
+          const rawBlob = await response.blob();
+          blob = new Blob([rawBlob], { type: "application/pdf" });
+        }
+
+        progressFill.style.width = "100%";
+        progressText.textContent = "اكتمل التحميل! تم الحفظ في جهازك.";
+
+        const blobUrl = URL.createObjectURL(blob);
+        cachedBlobUrls[file.fileName] = blobUrl;
+
+        // تنفيذ الحفظ التلقائي
+        triggerAnchorDownload(blobUrl, file.fileName);
+
+        // إظهار نافذة الفتح المباشر وشرح مكان الملف
+        showPostDownloadModal(file.fileName, blobUrl);
+
+      } catch (error) {
+        // خطة بديلة في حال فتح الملف محلياً (file://) بدون سيرفر
+        progressFill.style.width = "100%";
+        progressText.textContent = "جاري التحميل عبر المتصفح...";
+        triggerAnchorDownload(fullUrl, file.fileName);
+        showPostDownloadModal(file.fileName, fullUrl);
+      } finally {
+        resetButton(btn);
+      }
+    }
+
+    function resetButton(btn) {
+      btn.disabled = false;
+      btn.style.opacity = "1";
+    }
+
+    function triggerAnchorDownload(url, fileName) {
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    // زر الفتح المباشر السريع
+    function prepareDirectOpen(event, index) {
+      const file = FILES_DATA[index];
+      if (cachedBlobUrls[file.fileName]) {
+        event.preventDefault();
+        window.open(cachedBlobUrls[file.fileName], "_blank", "noopener");
+      }
+    }
+
+    // تحميل جميع الملفات بالتتابع
+    async function downloadAllFiles() {
+      for (let i = 0; i < FILES_DATA.length; i++) {
+        await handleDownload(i);
+        await new Promise(resolve => setTimeout(resolve, 600));
+      }
+    }
+
+    // إظهار نافذة التوجيه بعد التحميل
+    function showPostDownloadModal(fileName, openUrl) {
+      document.getElementById("modalFileName").textContent = fileName;
+      const openBtn = document.getElementById("directOpenBtn");
+      openBtn.href = openUrl;
+      document.getElementById("postDownloadModal").classList.add("active");
+    }
+
+    function closeModal() {
+      document.getElementById("postDownloadModal").classList.remove("active");
+    }
+
+    function closeModalOnBackdrop(event) {
+      if (event.target.id === "postDownloadModal") {
+        closeModal();
+      }
+    }
+
+    function switchGuideTab(os) {
+      const tabAndroid = document.getElementById("tabAndroid");
+      const tabIos = document.getElementById("tabIos");
+      const guideAndroid = document.getElementById("guideAndroid");
+      const guideIos = document.getElementById("guideIos");
+
+      if (os === "ios") {
+        tabIos.classList.add("active");
+        tabAndroid.classList.remove("active");
+        guideIos.style.display = "block";
+        guideAndroid.style.display = "none";
+      } else {
+        tabAndroid.classList.add("active");
+        tabIos.classList.remove("active");
+        guideAndroid.style.display = "block";
+        guideIos.style.display = "none";
+      }
+    }
+
+    // تشغيل التهيئة عند فتح الصفحة
+    detectEnvironment();
+    renderFiles();
+  </script>
+</body>
+</html>
